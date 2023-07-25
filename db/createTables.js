@@ -21,6 +21,7 @@ const createDatesTable = async () => {
       fecha
         TEXT NOT NULL
         UNIQUE,
+      hora TEXT NO NULL,
       discord_id TEXT NO NULL,
       FOREIGN KEY (discord_id)
         REFERENCES users (discord_id)

@@ -8,6 +8,7 @@ module.exports = {
     .setDescription('Ver mis citas'),
   async execute(interaction) {
     try {
+
       const id = interaction.user.id;
 
       const citas = db.prepare(`
@@ -15,13 +16,13 @@ module.exports = {
         WHERE discord_id = ?
       `).all(id);
 
-      const formatedNotes = citas.map(cita => [cita.servicio, cita.fecha || '']);
+      const formatedNotes = citas.map(cita => [cita.servicio, cita.fecha, cita.hora || '']);
 
       // Parte ACSII: crear tabla física
 
       const table =
     new AsciiTable3('mis citas')
-      .setHeading('Servicio', 'Fecha')
+      .setHeading('Servicio', 'Fecha', 'Hora')
       .setAlign(3, AlignmentEnum.CENTER)
       .addRowMatrix(formatedNotes);
 

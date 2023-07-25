@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const db = require('../../db');
-const date_regexr = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[12]\d|3[01])[\/](19|20)\d{2}$/
+const date_regexr = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[12]\d|3[01])[\/](19|20)\d{2}$/;
 
 // ButtonBuilder, ButtonStyle, ActionRowBuilder
 
@@ -25,20 +25,34 @@ module.exports = {
         .setName('fecha')
         .setDescription('Formato de fecha 01/01/2023')
         .setRequired(true),
+    )
+    .addStringOption(option =>
+      option
+        .setName('hora')
+        .setDescription('Hora que desea reservar')
+        .setRequired(true)
+        .addChoices(
+          { name: '10AM', value: '10AM' },
+          { name: '11AM', value: '11AM' },
+          { name: '12PM', value: '12PM' },
+          { name: '2PM', value: '2PM' },
+          { name: '3PM', value: '3PM' },
+        ),
     ),
   async execute(interaction) {
 
     try {
       const servicio = interaction.options.getString('servicio');
       const fecha = interaction.options.getString('fecha');
+      const hora = interaction.options.getString('hora');
       const id = interaction.user.id;
 
       if (!date_regexr.test(fecha)) return await interaction.reply('Formato de fecha invalida');
 
       db.prepare(`
-        INSERT INTO citas (servicio, fecha, discord_id)
-        VALUES (?,?,?)
-      `).run(servicio, fecha, id);
+        INSERT INTO citas (servicio, fecha, hora, discord_id)
+        VALUES (?,?,?,?)
+      `).run(servicio, fecha, hora, id);
 
       // const button = new ButtonBuilder()
       //   .setCustomId('primary')
@@ -49,7 +63,7 @@ module.exports = {
       // const row = new ActionRowBuilder()
       //   .addComponents(button);
 
-      await interaction.reply(`Cita creada para el servicio "${servicio}" con la fecha ${fecha} para el usuario <@${id}>`);
+      await interaction.reply(`Cita creada para el servicio "${servicio}" con la fecha ${fecha} y hora ${hora} para el usuario <@${id}>`);
       // components: [row],
     } catch (error) {
       if (error.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
